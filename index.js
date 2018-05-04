@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const config = require('./config')
+const socket = require('./lib/socket')
 
 // const session = require('express-session')
 // const MongoDBStore = require('connect-mongodb-session')(session)
@@ -43,9 +44,13 @@ app.use(bodyParser.json())
 //   saveUninitialized: true,
 // }))
 
-
 app.use((req, res, next) => {
   req.db = require('./lib/db')
+  next()
+})
+
+app.use((req, res, next) => {
+  req.$socket = socket
   next()
 })
 
