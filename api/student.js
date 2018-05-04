@@ -2,55 +2,41 @@ const express = require('express')
 const router = express.Router()
 
 module.exports = router
-
-router.get('/', (req, res) => {
+//     http://localhost:7000/api/student?class=1
+router.get('/', async (req, res) => {
   let db = req.db
-  db('student as s')
-    .join('province as p', 'p.province_id', 's.province_id')
-    .join('province as p', function() {
-      this.on('p.province_id', '=', 's.province_id')
-    })
-    .where('s.gender', '=', 'F')
-    .where(db.raw('upper(s.gender)'), '=', 'F')
-    .where({
-      's.citizen_id': req.query.id,
-      'upper(s.gender)': 'F',
-    })
-    .orderBy('id', 'asc')
-    .select(['s.*', 'p.province_name'])
-    .then(rows => {
-      res.send({
-        status: true,
-        data: rows,
-      })
-    }).catch(error => {
-      console.log('ERROR1', error)
-      res.send({
-        status: false,
-        error: 'เกิดข้อผิดพลาด',
-      })
-    })
+  let rows
+  if (req.query.class) {
+    rows = await db('student').where('class', '=', req.query.class).orderBy('fname')
+  } else {
+    rows = await db('student').orderBy('first_name')
+  }
+  // let rows = await db('student').orderBy('fname').where(function() {
+  //   if (req.query.class) {
+  //     this.where('class', '=', req.query.class)
+  //   }
+  // })
+  res.send({
+    ok: true,
+    student: rows,
+  })
 })
-//   /student/save
+
+//   /api/student/save
 router.post('/save', async (req, res) => {
   let db = req.db
-
-  let list = []
-  for (let i = 0; i < 5; i++) {
-    list.push({province_code: 'code' + i, province_name: 'name' + i, zone_id: 0})
-  }
-  try {
-    let ids = await db('province').insert(list, 'id')
-    res.send({
-      status: true,
-    })
-    console.log('ids=', ids)
-  } catch (error) {
-    res.send({
-      status: false,
-      error: 'เกิดข้อผิดพลาด',
-    })
-  }
+  // UPDATE student SET fname=?, lname=? WHERE id=7
+  await db('student').where({id: req.body.id}).update({
+    fname: req.body.fname,
+    lname: req.body.lname,
+  })
+  let ids = await db('student').insert({
+    code: '',
+    first_name: '',
+    last_name: '',
+  })
+  let id = ids[0]
+  res.send({ok: true})
 })
 
 router.delete('/:id', function (req, res) {
