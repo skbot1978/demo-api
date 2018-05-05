@@ -7,7 +7,7 @@ router.get('/', async (req, res) => {
   let db = req.db
   let rows
   if (req.query.class) {
-    rows = await db('student').where('class', '=', req.query.class).orderBy('fname')
+    rows = await db('student').where('class', '=', req.query.class).orderBy('first_name')
   } else {
     rows = await db('student').orderBy('first_name')
   }
@@ -21,21 +21,30 @@ router.get('/', async (req, res) => {
     student: rows,
   })
 })
-
+// /api/student/id/555
+router.get('/id/:id', async (req, res) => {
+  let db = req.db
+  let rows = await db('student')
+    .where('id', '=', req.params.id)
+  res.send({
+    ok: true,
+    student: rows[0] || {},
+  })
+})
 //   /api/student/save
 router.post('/save', async (req, res) => {
   let db = req.db
-  // UPDATE student SET fname=?, lname=? WHERE id=7
+  // UPDATE student SET first_name=?, last_name=? WHERE id=7
   await db('student').where({id: req.body.id}).update({
-    fname: req.body.fname,
-    lname: req.body.lname,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
   })
-  let ids = await db('student').insert({
-    code: '',
-    first_name: '',
-    last_name: '',
-  })
-  let id = ids[0]
+  // let ids = await db('student').insert({
+  //   code: '',
+  //   first_name: '',
+  //   last_name: '',
+  // })
+  // let id = ids[0]
   res.send({ok: true})
 })
 
