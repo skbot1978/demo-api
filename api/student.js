@@ -3,23 +3,24 @@ const router = express.Router()
 
 module.exports = router
 //     http://localhost:7000/api/student?class=1
-router.get('/', async (req, res) => {
-  let db = req.db
-  let rows
-  if (req.query.class) {
-    rows = await db('student').where('class', '=', req.query.class).orderBy('first_name')
-  } else {
-    rows = await db('student').orderBy('first_name')
+router.get('/list', async (req, res) => {
+  try{
+    // let rows = await req.db.raw(`
+    //   SELECT * 
+    //   FROM student 
+    //   WHERE room=?`, [req.query.room])   
+    //let rows = await req.db('student').select('st_code', 'st_firstname' )
+    //let rows = await req.db('student').select('class' )
+    let rows = await req.db('student')
+    res.send({
+      ok: true,
+      //student: Object.values(rows[0]),
+      student: rows
+    })
   }
-  // let rows = await db('student').orderBy('fname').where(function() {
-  //   if (req.query.class) {
-  //     this.where('class', '=', req.query.class)
-  //   }
-  // })
-  res.send({
-    ok: true,
-    student: rows,
-  })
+  catch (e) {
+    res.send({ ok: false, error: e.message })
+  }
 })
 // /api/student/id/555
 router.get('/id/:id', async (req, res) => {
