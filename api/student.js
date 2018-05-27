@@ -49,6 +49,78 @@ router.post('/save', async (req, res) => {
   res.send({ok: true})
 })
 
+//   /api/student/insert   // ใช้แทรกข้อมูลนักเรียนเก่าลงไป
+router.post('/insert', async (req, res) => {
+  console.log(req.body)
+  if (!req.body.stCode || !req.body.stFirstname 
+      || !req.body.stLastname || !req.body.stRoom) {
+     return res.send({
+      ok: false,
+      //message: req.body.stCode,
+      //console.log(req.body.stCode),
+      message: 'กรุณกรอกข้อมูลให้ครบ',
+    })
+  }
+  
+  try{
+    let id = await req.db('student').insert({
+      st_code: req.body.stCode || '',
+      st_firstname: req.body.stFirstname || '',
+      st_lastname: req.body.stLastname || '',
+      st_room: req.body.stRoom || '',
+      st_ship: req.body.stShip || '',
+      st_map: req.body.stMap || '',
+    }).then(ids => ids[0])
+    let student = await req.db('student').where('st_code', '=', req.body.stCode )
+    res.send({
+      ok: true,
+      id,
+      student,
+    })
+  }
+  catch(e) {
+    res.send({ ok: false, eror: e.message})
+  }
+})
+
+//   /api/student/update   // ใช้แทรกข้อมูลนักเรียนเก่าลงไป
+router.post('/update', async (req, res) => {
+  console.log(req.body)
+  if (!req.body.stCode || !req.body.stFirstname 
+      || !req.body.stLastname || !req.body.stRoom) {
+     return res.send({
+      ok: false,
+      //message: req.body.stCode,
+      //console.log(req.body.stCode),
+      message: 'กรุณกรอกข้อมูลให้ครบ',
+    })
+  }
+  
+  try{
+    let id = await req.db('student')
+    .where('st_code', '=', req.body.stCode )
+    .update({
+      st_code: req.body.stCode || '',
+      st_firstname: req.body.stFirstname || '',
+      st_lastname: req.body.stLastname || '',
+      st_room: req.body.stRoom || '',
+      st_ship: req.body.stShip || '',
+      st_map: req.body.stMap || '',
+    }).then(ids => ids[0])
+
+    let student = await req.db('student').where('st_code', '=', req.body.stCode )
+    res.send({
+      ok: true,
+      id,
+      student,
+    })
+  }
+  catch(e) {
+    res.send({ ok: false, eror: e.message})
+  }
+})
+
+
 router.delete('/:id', function (req, res) {
   req.db('student').where({id: req.params.id}).delete().then(() =>{
     res.send({status: true})

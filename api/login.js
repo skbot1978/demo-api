@@ -39,8 +39,8 @@ router.post('/', async (req, res) => {
       })
     }
     */
-    
-   let user = rows[0]
+   // เก็บค่าของเฉพาะชื่อผู้ใช้ใส่ในตัวแปร rows 
+   let user = rows[0]["name"]
    
    // TODO: save ข้อมูลลง session
    // req.session.data = user
